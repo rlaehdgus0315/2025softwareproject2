@@ -79,28 +79,24 @@ void loop() {
   dist_ema = _EMA_ALPHA * dist_filtered + (1 - _EMA_ALPHA) * dist_ema;
 
   // adjust servo position according to the USS read value
-  // add your code here!
-  // add your code here!
-  if (dist_ema <= _TARGET_LOW) {
-    myservo.writeMicroseconds(_DUTY_MIN);  // 0도
-    digitalWrite(PIN_LED, HIGH);           // LED ON
-  }
-  else if (dist_ema >= _TARGET_HIGH) {
-    myservo.writeMicroseconds(_DUTY_MAX);  // 180도
-    digitalWrite(PIN_LED, HIGH);           // LED ON
-  }
-  else {
-    myservo.writeMicroseconds(_DUTY_NEU);  // 90도
-    digitalWrite(PIN_LED, LOW);            // LED OFF
-  }
+  int angle;
+  if (dist_ema <= _DIST_MIN)
+    angle = 0;
+  else if (dist_ema >= _DIST_MAX)
+    angle = 180;
+  else
+    angle = map(dist_ema, _DIST_MIN, _DIST_MAX, 0, 180);
+
+  int duty = map(angle, 0, 180, _DUTY_MIN, _DUTY_MAX);
+  myservo.writeMicroseconds(duty);
+
 
 
   // output the distance to the serial port
   Serial.print("Min:");    Serial.print(_DIST_MIN);
-  Serial.print(",Low:");   Serial.print(_TARGET_LOW);
   Serial.print(",dist:");  Serial.print(dist_raw);
+  Serial.print(",ema:");   Serial.print(dist_ema);
   Serial.print(",Servo:"); Serial.print(myservo.read());  
-  Serial.print(",High:");  Serial.print(_TARGET_HIGH);
   Serial.print(",Max:");   Serial.print(_DIST_MAX);
   Serial.println("");
  

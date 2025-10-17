@@ -48,11 +48,11 @@ void setup() {
 
   // initialize USS related variables
   dist_prev = _DIST_MIN; // raw distance output from USS (unit: mm)
-
+  dist_ema = _DIST_MAX;
   // initialize serial port
   Serial.begin(57600);
 }
-
+  
 void loop() {
   float  dist_raw, dist_filtered;
   
@@ -90,6 +90,10 @@ void loop() {
   int duty = map(angle, 0, 180, _DUTY_MIN, _DUTY_MAX);
   myservo.writeMicroseconds(duty);
 
+  if (dist_raw >= 180.0 && dist_raw <= 360.0)
+    digitalWrite(PIN_LED, LOW);   // LED ON
+  else
+    digitalWrite(PIN_LED, HIGH);  // LED OFF
 
 
   // output the distance to the serial port
@@ -101,7 +105,7 @@ void loop() {
   Serial.println("");
  
   // update last sampling time
-  last_sampling_time += INTERVAL;
+  last_sampling_time = millis();
 }
 
 // get a distance reading from USS. return value is in millimeter.
